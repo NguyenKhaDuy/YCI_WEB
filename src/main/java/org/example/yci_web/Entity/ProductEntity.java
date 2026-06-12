@@ -57,4 +57,11 @@ public class ProductEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_category")
     private CategoryEntity categoryEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_status")
+    private StatusEntity statusEntity;
+
+    @OneToMany(mappedBy = "productEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<BookingDetailEntity> bookingDetailEntities = new ArrayList<>();
 }
