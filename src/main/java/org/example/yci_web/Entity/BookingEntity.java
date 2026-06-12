@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,9 +28,6 @@ public class BookingEntity {
 
     @Column(name = "total_amount")
     private Double totalAmount;
-
-    @Column(name = "status")
-    private String status;
 
     @Column(name = "note")
     private String note;
@@ -51,4 +50,21 @@ public class BookingEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_deposit_type")
     private DepositTypeEntity depositTypeEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_payment_method")
+    private PaymentsMethodEntity paymentsMethodEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_status")
+    private StatusEntity statusEntity;
+
+    @OneToMany(mappedBy = "bookingEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<BookingDetailEntity> bookingDetailEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bookingEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<DocumentsEntity> documentsEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bookingEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<PaymentBookingEntity> paymentBookingEntities = new ArrayList<>();
 }
