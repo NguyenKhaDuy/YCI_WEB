@@ -35,10 +35,6 @@ public class ReturnDetailEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_return")
-    private ReturnEntity returnEntity;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_booking_detail")
     private BookingDetailEntity bookingDetailEntity ;
 }

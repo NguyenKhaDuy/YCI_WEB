@@ -16,9 +16,6 @@ public class BookingDetailEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idBookingDetail;
 
-    @Column(name = "quantity")
-    private Integer quantity;
-
     @Column(name = "total_price")
     private Double totalPrice;
 
@@ -31,5 +28,5 @@ public class BookingDetailEntity {
     private BookingEntity bookingEntity;
 
     @OneToMany(mappedBy = "bookingDetailEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private List<ReturnDetailEntity> returnDetailEntityList = new ArrayList<>();
+    private List<ReturnDetailEntity> returnDetailEntities = new ArrayList<>();
 }

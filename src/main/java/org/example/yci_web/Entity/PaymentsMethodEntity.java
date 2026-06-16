@@ -20,5 +20,5 @@ public class PaymentsMethodEntity {
     private String method;
 
     @OneToMany(mappedBy = "paymentsMethodEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private List<BookingEntity> bookingEntities = new ArrayList<>();
+    private List<PaymentBookingEntity> paymentBookingEntities = new ArrayList<>();
 }

@@ -34,12 +34,6 @@ public class ProductEntity {
     @Column(name = "deposit_price")
     private Double depositPrice;
 
-    @Column(name = "replacement_price")
-    private Double replacementPrice;
-
-    @Column(name = "status")
-    private String status;
-
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createdAt;
@@ -52,7 +46,7 @@ public class ProductEntity {
     private List<ImageEntity> imageEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "productEntity", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private List<RentailPriceEntity> rentailPriceEntities = new ArrayList<>();
+    private List<RentalPriceEntity> rentailPriceEntities = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_category")
