@@ -7,14 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "rentail_price")
+@Table(name = "rental_price")
 public class RentalPriceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idRentailPrice;
-
-    @Column(name = "rentail_type")
-    private String rentailType;
+    private Long idRentalPrice;
 
     @Column(name = "price")
     private Double price;
@@ -22,4 +19,8 @@ public class RentalPriceEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_product")
     private ProductEntity productEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_type")
+    private RentalTypeEntity rentalTypeEntity ;
 }

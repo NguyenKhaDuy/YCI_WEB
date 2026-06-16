@@ -27,7 +27,7 @@ public class DocumentsEntity {
     @Column(name = "image_back", columnDefinition = "LONGBLOB")
     private byte[] imageBack;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "id_booking")
     private BookingEntity bookingEntity;
 

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StatusRepository extends JpaRepository<StatusEntity, Long> {
+    StatusEntity findByStatusCode(String statusCode);
 }

@@ -29,4 +29,8 @@ public class PaymentBookingEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_booking")
     private BookingEntity bookingEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_payment_method")
+    private PaymentsMethodEntity paymentsMethodEntity;
 }

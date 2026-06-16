@@ -34,12 +34,6 @@ public class ProductEntity {
     @Column(name = "deposit_price")
     private Double depositPrice;
 
-    @Column(name = "replacement_price")
-    private Double replacementPrice;
-
-    @Column(name = "status")
-    private String status;
-
     @Column(name = "created_at")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createdAt;
