@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="auth-shell">
+    <section class="auth-panel wide">
+        <div>
+            <p class="eyebrow">Khách hàng mới</p>
+            <h1>Tạo tài khoản thuê thiết bị</h1>
+        </div>
+        <form class="form-grid two" th:action="@{/register}" method="post" th:object="${registerRequest}">
+            <label>
+                <span>Họ tên</span>
+                <input th:field="*{fullName}" autocomplete="name" required>
+            </label>
+            <label>
+                <span>Số điện thoại</span>
+                <input th:field="*{phone}" autocomplete="tel" required>
+            </label>
+            <label>
+                <span>Email</span>
+                <input th:field="*{email}" type="email" autocomplete="email" required>
+            </label>
+            <label>
+                <span>Mật khẩu</span>
+                <input th:field="*{password}" type="password" autocomplete="new-password" required>
+            </label>
+            <label>
+                <span>CCCD</span>
+                <input th:field="*{cccd}" required>
+            </label>
+            <label>
+                <span>Địa chỉ</span>
+                <input th:field="*{address}" autocomplete="street-address" required>
+            </label>
+            <button class="button primary full span-2" type="submit">Tạo tài khoản</button>
+        </form>
+        <p class="muted center">Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Khách hàng</p>
+                <h1>Danh sách tài khoản và phân quyền</h1>
+            </div>
+        </div>
+
+        <section class="metric-grid compact-metrics">
+            <article class="metric-card">
+                <span>Tất cả tài khoản</span>
+                <strong data-account-total>0</strong>
+                <small>Toàn bộ người dùng hệ thống</small>
+            </article>
+            <article class="metric-card">
+                <span>Khách hàng</span>
+                <strong data-account-customers>0</strong>
+                <small>Tài khoản đặt thuê</small>
+            </article>
+            <article class="metric-card">
+                <span>Nhân viên</span>
+                <strong data-account-staff>0</strong>
+                <small>Xử lý đơn và trả thiết bị</small>
+            </article>
+            <article class="metric-card">
+                <span>Quản trị viên</span>
+                <strong data-account-admins>0</strong>
+                <small>Quản lý hệ thống</small>
+            </article>
+        </section>
+
+        <section class="toolbar surface">
+            <label class="search-field">
+                <i data-lucide="search"></i>
+                <input data-customer-search type="search" placeholder="Tìm tên, email, số điện thoại">
+            </label>
+        </section>
+        <section class="admin-tabs surface" data-account-role-tabs></section>
+        <section class="surface table-wrap">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>Liên hệ</th>
+                    <th>CCCD</th>
+                    <th>Vai trò</th>
+                    <th>Ngày tạo</th>
+                </tr>
+                </thead>
+                <tbody data-customers-table></tbody>
+            </table>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

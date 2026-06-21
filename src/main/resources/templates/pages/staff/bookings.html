@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body data-page="staff-bookings">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout staff-layout">
+    <section class="admin-content staff-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Nhân viên</p>
+                <h1>Xử lý yêu cầu thuê và trả thiết bị</h1>
+            </div>
+            <button class="button ghost" type="button" data-refresh-admin-bookings>
+                <i data-lucide="refresh-cw"></i> Tải lại
+            </button>
+        </div>
+
+        <section class="staff-steps">
+            <article>
+                <i data-lucide="inbox"></i>
+                <strong>Tiếp nhận</strong>
+                <span>Lọc đơn chờ xác nhận theo khách hàng, số điện thoại hoặc trạng thái.</span>
+            </article>
+            <article>
+                <i data-lucide="file-check-2"></i>
+                <strong>Giấy tờ và cọc</strong>
+                <span>Kiểm tra giấy tờ thế chấp, chọn mức cọc và phương thức thanh toán.</span>
+            </article>
+            <article>
+                <i data-lucide="camera"></i>
+                <strong>Giao nhận</strong>
+                <span>Đối chiếu serial, tình trạng thiết bị và phụ kiện trước khi giao.</span>
+            </article>
+            <article>
+                <i data-lucide="rotate-ccw"></i>
+                <strong>Hoàn trả</strong>
+                <span>Ghi nhận trả trễ, vệ sinh, sửa chữa và tình trạng sau thuê.</span>
+            </article>
+        </section>
+
+        <section class="toolbar surface">
+            <label class="search-field">
+                <i data-lucide="search"></i>
+                <input data-admin-booking-search type="search" placeholder="Tìm mã đơn, tên khách, số điện thoại">
+            </label>
+            <select class="select" data-admin-booking-status>
+                <option value="">Tất cả trạng thái</option>
+            </select>
+        </section>
+        <section class="admin-tabs surface" data-booking-status-tabs></section>
+
+        <section class="admin-grid bookings">
+            <div class="surface table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Lịch thuê</th>
+                        <th>Giá trị</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody data-admin-bookings-table></tbody>
+                </table>
+            </div>
+            <aside class="surface inspector staff-inspector" data-booking-inspector>
+                <div class="empty-state small">
+                    <i data-lucide="mouse-pointer-click"></i>
+                    <h3>Chọn một đơn thuê</h3>
+                    <p>Thông tin xác nhận đơn và trả thiết bị sẽ hiển thị riêng tại đây.</p>
+                </div>
+            </aside>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

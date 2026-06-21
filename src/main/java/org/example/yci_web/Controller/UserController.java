@@ -4,6 +4,7 @@ import org.example.yci_web.Model.DTO.UserDTO;
 import org.example.yci_web.Model.Request.RegisterRequest;
 import org.example.yci_web.Model.Request.UpdatePasswordRequest;
 import org.example.yci_web.Model.Request.UpdateProfileRequest;
+import org.example.yci_web.Model.Request.UpdateUserRoleRequest;
 import org.example.yci_web.Model.Response.DataPageResponse;
 import org.example.yci_web.Model.Response.MessageResponse;
 import org.example.yci_web.Service.UserService;
@@ -42,6 +43,12 @@ public class UserController {
     @PutMapping(value = "/api/profile")
     public ResponseEntity<Object> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
         MessageResponse response = userService.updateProfile(updateProfileRequest);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PutMapping(value = "/api/admin/user/role")
+    public ResponseEntity<Object> updateRole(@RequestBody UpdateUserRoleRequest updateUserRoleRequest) {
+        MessageResponse response = userService.updateRole(updateUserRoleRequest);
         return new ResponseEntity<>(response, response.getStatus());
     }
 

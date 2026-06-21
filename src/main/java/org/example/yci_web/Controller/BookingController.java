@@ -49,6 +49,13 @@ public class BookingController {
         return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
     }
 
+    @PutMapping(value = "/api/booking/id={id}/cancel")
+    public ResponseEntity<Object> cancelBooking(@PathVariable("id") Long id,
+                                                @RequestParam(name = "userId", required = false) Long userId) {
+        MessageResponse messageResponse = bookingService.cancelBooking(id, userId);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
+    }
+
     @GetMapping(value = "/api/booking/id={id}")
     public ResponseEntity<Object> getBookingById(@PathVariable("id") Long id) {
         Object result = bookingService.getBookingById(id);

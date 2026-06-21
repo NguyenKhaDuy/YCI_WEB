@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="page-hero compact">
+        <div>
+            <p class="eyebrow">Đặt lịch</p>
+            <h1>Tạo đơn thuê nhiều thiết bị</h1>
+            <p>Đơn thuê sẽ gắn với tài khoản đang đăng nhập trong session và được hệ thống kiểm tra lịch trùng theo từng thiết bị.</p>
+        </div>
+        <a class="button ghost" th:href="@{/products}"><i data-lucide="plus"></i> Thêm thiết bị</a>
+    </section>
+
+    <section class="booking-steps">
+        <article>
+            <i data-lucide="shopping-bag"></i>
+            <strong>1. Chọn thiết bị</strong>
+            <span>Thêm máy ảnh, lens, flash hoặc phụ kiện vào cùng một đơn thuê.</span>
+        </article>
+        <article>
+            <i data-lucide="calendar-clock"></i>
+            <strong>2. Chọn lịch</strong>
+            <span>Chọn giờ bắt đầu và gói thuê để hệ thống tính giờ trả.</span>
+        </article>
+        <article>
+            <i data-lucide="badge-check"></i>
+            <strong>3. Xác nhận cọc</strong>
+            <span>Nhân viên kiểm tra giấy tờ, tình trạng thiết bị và mức cọc thực thu.</span>
+        </article>
+    </section>
+
+    <section class="booking-layout">
+        <div class="surface">
+            <div class="section-heading tight">
+                <div>
+                    <p class="eyebrow">Thiết bị đã chọn</p>
+                    <h2>Giỏ đặt thuê</h2>
+                </div>
+                <button class="icon-button" type="button" data-clear-cart aria-label="Xóa giỏ đặt">
+                    <i data-lucide="trash-2"></i>
+                </button>
+            </div>
+            <div class="booking-cart" data-booking-cart></div>
+            <div class="empty-state small" data-empty-cart hidden>
+                <i data-lucide="shopping-bag"></i>
+                <h3>Chưa có thiết bị</h3>
+                <p>Hãy thêm thiết bị từ danh sách sản phẩm.</p>
+            </div>
+        </div>
+
+        <form class="surface form-grid" data-booking-form enctype="multipart/form-data">
+            <input type="hidden" name="userId" th:value="${currentUser.idUser}">
+            <div class="form-row two">
+                <label>
+                    <span>Giờ bắt đầu</span>
+                    <input name="timeStartInput" type="datetime-local" required>
+                </label>
+                <label>
+                    <span>Gói thuê</span>
+                    <select name="idRentalType" data-rental-type-select required></select>
+                </label>
+            </div>
+            <label>
+                <span>Giờ kết thúc tự động</span>
+                <input name="timeEndInput" type="datetime-local" readonly required>
+                <small class="field-note" data-duration-note>Chọn giờ bắt đầu và gói thuê để hệ thống tự tính giờ trả.</small>
+            </label>
+            <label>
+                <span>Ghi chú</span>
+                <textarea name="note" rows="3" placeholder="Lịch chụp, yêu cầu kiểm tra, phụ kiện đi kèm"></textarea>
+            </label>
+            <div class="form-row two">
+                <label>
+                    <span>Loại giấy tờ</span>
+                    <select name="documentType" required>
+                        <option value="CCCD">CCCD</option>
+                        <option value="Passport">Hộ chiếu</option>
+                        <option value="Driver License">Bằng lái xe</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Số giấy tờ</span>
+                    <input name="documentNumber" required>
+                </label>
+            </div>
+            <div class="form-row two">
+                <label>
+                    <span>Ảnh mặt trước</span>
+                    <input name="imageFront" type="file" accept="image/*" required>
+                </label>
+                <label>
+                    <span>Ảnh mặt sau</span>
+                    <input name="imageBack" type="file" accept="image/*" required>
+                </label>
+            </div>
+            <div class="total-panel">
+                <span>Giá thuê tạm tính</span>
+                <strong data-booking-total>0 d</strong>
+            </div>
+            <div class="total-panel secondary">
+                <span>Cọc thế chấp tham chiếu</span>
+                <strong data-booking-deposit-reference>0 d</strong>
+                <small>Cọc thực thu sẽ được nhân viên áp dụng theo mức cọc khi xác nhận đơn.</small>
+            </div>
+            <button class="button primary full" type="submit">Gửi yêu cầu thuê</button>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

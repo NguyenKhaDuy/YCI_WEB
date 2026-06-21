@@ -20,10 +20,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -57,64 +63,115 @@ public class BookingServiceImpl implements BookingService {
         StatusEntity statusEntity = null;
         RentalTypeEntity rentalTypeEntity = null;
         List<BookingDetailEntity> bookingDetailEntities = new ArrayList<>();
+        double totalAmount = 0;
 
-        //kiem tra xem co trung lich hay khong
-        List<BookingEntity> bookings = bookingRepository.findAll();
-        for (BookingEntity booking : bookings) {
-
-            boolean overlap =
-                    bookingRequest.getTimeStart().isBefore(booking.getTimeEnd())
-                            &&
-                            bookingRequest.getTimeEnd().isAfter(booking.getTimeStart());
-
-            if (overlap) {
-                messageResponse.setMessage("Can not booking");
-                messageResponse.setStatus(HttpStatus.BAD_REQUEST);
-                return messageResponse;
-            }
+        if (bookingRequest.getTimeStart() == null
+                || bookingRequest.getTimeEnd() == null
+                || !bookingRequest.getTimeEnd().isAfter(bookingRequest.getTimeStart())) {
+            messageResponse.setMessage("Thời gian thuê không hợp lệ");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        if (bookingRequest.getProductIds() == null || bookingRequest.getProductIds().isEmpty()) {
+            messageResponse.setMessage("Vui lòng chọn ít nhất một thiết bị");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        if (bookingRequest.getImageFront() == null
+                || bookingRequest.getImageFront().isEmpty()
+                || bookingRequest.getImageBack() == null
+                || bookingRequest.getImageBack().isEmpty()) {
+            messageResponse.setMessage("Vui lòng tải ảnh giấy tờ thế chấp");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
         }
 
         try {
             userEntity = userRepository.findById(bookingRequest.getUserId()).get();
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("No such user");
+            messageResponse.setMessage("Không tìm thấy khách hàng");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
-        try {
-            statusEntity = statusRepository.findByStatusCode("WAITING ACCEPT");
-        } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("No such payment method");
-            messageResponse.setStatus(HttpStatus.NOT_FOUND);
+        if (userEntity.getRole() != null && userEntity.getRole() == 0) {
+            messageResponse.setMessage("Tài khoản quản trị chỉ được xem, không thể đặt thuê");
+            messageResponse.setStatus(HttpStatus.FORBIDDEN);
             return messageResponse;
         }
+        statusEntity = findOrCreateStatus("WAITING ACCEPT");
         try {
             rentalTypeEntity = rentalTypeRepository.findById(bookingRequest.getIdRentalType()).get();
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("No such rental type");
+            messageResponse.setMessage("Không tìm thấy loại giá thuê");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
+        double rentalHours = rentalDurationHours(rentalTypeEntity.getType());
+        if (rentalHours <= 0) {
+            messageResponse.setMessage("Loại giá thuê chưa cấu hình thời lượng rõ ràng");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        long expectedMinutes = Math.round(rentalHours * 60);
+        long actualMinutes = Duration.between(bookingRequest.getTimeStart(), bookingRequest.getTimeEnd()).toMinutes();
+        if (actualMinutes != expectedMinutes) {
+            messageResponse.setMessage("Thời gian thuê phải khớp với gói " + rentalTypeEntity.getType());
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        Set<Long> requestedProductIds = new LinkedHashSet<>(bookingRequest.getProductIds());
+        for (BookingEntity booking : bookingRepository.findAll()) {
+            if (isClosedStatus(booking.getStatusEntity())) {
+                continue;
+            }
+            boolean overlap = bookingRequest.getTimeStart().isBefore(booking.getTimeEnd())
+                    && bookingRequest.getTimeEnd().isAfter(booking.getTimeStart());
+            if (!overlap) {
+                continue;
+            }
+            for (BookingDetailEntity detail : booking.getBookingDetailEntities()) {
+                if (detail.getProductEntity() != null
+                        && requestedProductIds.contains(detail.getProductEntity().getIdProduct())) {
+                    messageResponse.setMessage("Thiết bị " + detail.getProductEntity().getNameProduct() + " đã có lịch thuê trong khoảng thời gian này");
+                    messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+                    return messageResponse;
+                }
+            }
+        }
+
 //        modelMapper.map(bookingRequest, bookingEntity);
         bookingEntity.setTimeStart(bookingRequest.getTimeStart());
         bookingEntity.setTimeEnd(bookingRequest.getTimeEnd());
         bookingEntity.setNote(bookingRequest.getNote());
-        bookingEntity.setTotalAmount(bookingRequest.getTotalAmount());
         bookingEntity.setUserEntity(userEntity);
         bookingEntity.setStatusEntity(statusEntity);
         bookingEntity.setCreatedAt(LocalDateTime.now());
-        for (Long idProduct : bookingRequest.getProductIds()) {
+        for (Long idProduct : requestedProductIds) {
             BookingDetailEntity bookingDetailEntity = new BookingDetailEntity();
-            ProductEntity productEntity = productRepository.findById(idProduct).get();
+            ProductEntity productEntity;
+            try {
+                productEntity = productRepository.findById(idProduct).get();
+            } catch (NoSuchElementException ex) {
+                messageResponse.setMessage("Không tìm thấy thiết bị");
+                messageResponse.setStatus(HttpStatus.NOT_FOUND);
+                return messageResponse;
+            }
             RentalPriceEntity rentalPriceEntity = rentalPriceRepository.findByProductEntityAndRentalTypeEntity(productEntity, rentalTypeEntity);
+            if (rentalPriceEntity == null) {
+                messageResponse.setMessage("Thiết bị " + productEntity.getNameProduct() + " chưa có giá thuê cho loại giá đã chọn");
+                messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+                return messageResponse;
+            }
             bookingDetailEntity.setBookingEntity(bookingEntity);
             bookingDetailEntity.setProductEntity(productEntity);
             bookingDetailEntity.setTotalPrice(rentalPriceEntity.getPrice());
+            totalAmount += rentalPriceEntity.getPrice() == null ? 0 : rentalPriceEntity.getPrice();
             bookingDetailEntities.add(bookingDetailEntity);
         }
+        bookingEntity.setTotalAmount(totalAmount);
         bookingEntity.setBookingDetailEntities(bookingDetailEntities);
 
-        StatusEntity statusDocument = statusRepository.findByStatusCode("NOT YET RECEIVED");
+        StatusEntity statusDocument = findOrCreateStatus("NOT YET RECEIVED");
         documentsEntity.setBookingEntity(bookingEntity);
         documentsEntity.setStatusEntity(statusDocument);
         documentsEntity.setDocumentType(bookingRequest.getDocumentType());
@@ -126,9 +183,8 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException(e);
         }
         bookingEntity.setDocumentsEntity(documentsEntity);
-        System.out.println("BOOKING ID = " + bookingEntity.getIdBooking());
         bookingRepository.save(bookingEntity);
-        messageResponse.setMessage("Booking successful");
+        messageResponse.setMessage("Đặt lịch thuê thành công");
         messageResponse.setStatus(HttpStatus.OK);
         return messageResponse;
     }
@@ -223,27 +279,27 @@ public class BookingServiceImpl implements BookingService {
 
                         bookingRepository.save(bookingEntity);
 
-                        messageResponse.setMessage("Booking accepted");
+                        messageResponse.setMessage("Xác nhận đơn thuê thành công");
                         messageResponse.setStatus(HttpStatus.OK);
                         return messageResponse;
                     } catch (NoSuchElementException ex) {
-                        messageResponse.setMessage("Deposit type not found");
+                        messageResponse.setMessage("Không tìm thấy loại tiền cọc");
                         messageResponse.setStatus(HttpStatus.NOT_FOUND);
                         return messageResponse;
                     }
                 } catch (NoSuchElementException ex) {
-                    messageResponse.setMessage("Payment method not found");
+                    messageResponse.setMessage("Không tìm thấy phương thức thanh toán");
                     messageResponse.setStatus(HttpStatus.NOT_FOUND);
                     return messageResponse;
                 }
             } catch (NoSuchElementException ex) {
                 messageResponse.setStatus(HttpStatus.NOT_FOUND);
-                messageResponse.setMessage("Status not found");
+                messageResponse.setMessage("Không tìm thấy trạng thái đơn thuê");
                 return messageResponse;
             }
         } catch (NoSuchElementException ex) {
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
-            messageResponse.setMessage("Booking not found");
+            messageResponse.setMessage("Không tìm thấy đơn thuê");
             return messageResponse;
         }
     }
@@ -263,17 +319,47 @@ public class BookingServiceImpl implements BookingService {
                     }
                 }
                 bookingRepository.save(bookingEntity);
-                messageResponse.setMessage("Booking updated");
+                messageResponse.setMessage("Cập nhật trạng thái đơn thuê thành công");
                 messageResponse.setStatus(HttpStatus.OK);
                 return messageResponse;
             } catch (NoSuchElementException ex) {
-                messageResponse.setMessage("Status not found");
+                messageResponse.setMessage("Không tìm thấy trạng thái đơn thuê");
                 messageResponse.setStatus(HttpStatus.NOT_FOUND);
                 return messageResponse;
             }
         } catch (NoSuchElementException ex) {
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
-            messageResponse.setMessage("Booking not found");
+            messageResponse.setMessage("Không tìm thấy đơn thuê");
+            return messageResponse;
+        }
+    }
+
+    @Override
+    public MessageResponse cancelBooking(Long idBooking, Long idUser) {
+        MessageResponse messageResponse = new MessageResponse();
+        try {
+            BookingEntity bookingEntity = bookingRepository.findById(idBooking).get();
+            if (idUser != null
+                    && bookingEntity.getUserEntity() != null
+                    && !bookingEntity.getUserEntity().getIdUser().equals(idUser)) {
+                messageResponse.setMessage("Bạn không có quyền hủy đơn thuê này");
+                messageResponse.setStatus(HttpStatus.FORBIDDEN);
+                return messageResponse;
+            }
+            String statusCode = bookingEntity.getStatusEntity() == null ? "" : bookingEntity.getStatusEntity().getStatusCode();
+            if (!isWaitingStatus(statusCode)) {
+                messageResponse.setMessage("Chỉ được hủy đơn khi đơn còn chờ xác nhận");
+                messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+                return messageResponse;
+            }
+            bookingEntity.setStatusEntity(findOrCreateStatus("CANCELLED"));
+            bookingRepository.save(bookingEntity);
+            messageResponse.setMessage("Đã hủy đơn thuê");
+            messageResponse.setStatus(HttpStatus.OK);
+            return messageResponse;
+        } catch (NoSuchElementException ex) {
+            messageResponse.setMessage("Không tìm thấy đơn thuê");
+            messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
     }
@@ -288,7 +374,7 @@ public class BookingServiceImpl implements BookingService {
             userEntity = userRepository.findById(idUser).get();
         }catch (NoSuchElementException ex){
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
-            messageResponse.setMessage("User not found");
+            messageResponse.setMessage("Không tìm thấy khách hàng");
             return messageResponse;
         }
         List<BookingEntity> bookingEntities = bookingRepository.findByUserEntity(userEntity);
@@ -350,7 +436,7 @@ public class BookingServiceImpl implements BookingService {
         }
         dataResponse.setStatus(HttpStatus.OK);
         dataResponse.setData(bookingDTOS);
-        dataResponse.setMessage("Success");
+        dataResponse.setMessage("Thành công");
         return dataResponse;
     }
 
@@ -416,12 +502,49 @@ public class BookingServiceImpl implements BookingService {
 
             dataResponse.setStatus(HttpStatus.OK);
             dataResponse.setData(bookingDTO);
-            dataResponse.setMessage("Success");
+            dataResponse.setMessage("Thành công");
             return dataResponse;
         }catch (NoSuchElementException ex){
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
-            messageResponse.setMessage("Booking not found");
+            messageResponse.setMessage("Không tìm thấy đơn thuê");
             return messageResponse;
         }
+    }
+
+    private StatusEntity findOrCreateStatus(String statusCode) {
+        StatusEntity statusEntity = statusRepository.findByStatusCode(statusCode);
+        if (statusEntity != null) {
+            return statusEntity;
+        }
+        statusEntity = new StatusEntity();
+        statusEntity.setStatusCode(statusCode);
+        return statusRepository.save(statusEntity);
+    }
+
+    private boolean isClosedStatus(StatusEntity statusEntity) {
+        String statusCode = statusEntity == null ? "" : statusEntity.getStatusCode();
+        String normalized = statusCode == null ? "" : statusCode.trim().toUpperCase();
+        return normalized.contains("CANCEL") || normalized.contains("RETURNED") || normalized.contains("COMPLETED");
+    }
+
+    private boolean isWaitingStatus(String statusCode) {
+        String normalized = statusCode == null ? "" : statusCode.trim().toUpperCase();
+        return normalized.equals("WAITING ACCEPT")
+                || normalized.equals("WAITING_ACCEPT")
+                || normalized.equals("PENDING")
+                || normalized.equals("CHỜ XÁC NHẬN");
+    }
+
+    private double rentalDurationHours(String type) {
+        String normalized = type == null ? "" : type.trim().toUpperCase(Locale.ROOT).replace(",", ".");
+        Matcher hourMatcher = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(H|GIỜ|GIO|HOUR)").matcher(normalized);
+        if (hourMatcher.find()) {
+            return Double.parseDouble(hourMatcher.group(1));
+        }
+        Matcher dayMatcher = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(D|DAY|NGÀY|NGAY)").matcher(normalized);
+        if (dayMatcher.find()) {
+            return Double.parseDouble(dayMatcher.group(1)) * 24;
+        }
+        return 0;
     }
 }

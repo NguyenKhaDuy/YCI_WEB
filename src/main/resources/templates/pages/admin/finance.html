@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Tài chính</p>
+                <h1>Doanh thu, tiền cọc và thanh toán</h1>
+            </div>
+        </div>
+        <section class="metric-grid">
+            <article class="metric-card">
+                <span>Đã thu</span>
+                <strong data-finance-paid>0 d</strong>
+                <small>Tổng các khoản thanh toán</small>
+            </article>
+            <article class="metric-card">
+                <span>Còn lại</span>
+                <strong data-finance-remain>0 d</strong>
+                <small>Số tiền chưa tất toán</small>
+            </article>
+            <article class="metric-card">
+                <span>Giá trị đơn</span>
+                <strong data-finance-total>0 d</strong>
+                <small>Tổng booking ghi nhận</small>
+            </article>
+            <article class="metric-card">
+                <span>Đơn có thanh toán</span>
+                <strong data-finance-count>0</strong>
+                <small>Phát sinh tiền cọc hoặc thu thêm</small>
+            </article>
+        </section>
+        <section class="surface table-wrap">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Thanh toán</th>
+                    <th>Còn lại</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody data-finance-table></tbody>
+            </table>
+        </section>
+        <section class="surface">
+            <h2>Thống kê theo thời gian</h2>
+            <div class="info-grid" data-revenue-breakdown></div>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

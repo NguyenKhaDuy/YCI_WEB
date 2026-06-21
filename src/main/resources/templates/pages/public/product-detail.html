@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell" th:attr="data-product-id=${productId}">
+    <nav class="breadcrumb">
+        <a th:href="@{/products}">Thiết bị</a>
+        <i data-lucide="chevron-right"></i>
+        <span data-product-crumb>Chi tiết</span>
+    </nav>
+
+    <section class="detail-layout">
+        <div class="surface detail-media">
+            <img data-product-image alt="Ảnh thiết bị">
+            <div class="thumbnail-row" data-product-thumbs></div>
+        </div>
+        <div class="detail-panel">
+            <span class="status-pill" data-product-status>Đang tải</span>
+            <h1 data-product-name>Đang tải thiết bị</h1>
+            <p class="lead" data-product-description></p>
+            <dl class="detail-specs">
+                <div><dt>Thương hiệu</dt><dd data-product-brand>-</dd></div>
+                <div><dt>Danh mục</dt><dd data-product-category>-</dd></div>
+                <div><dt>Serial</dt><dd data-product-serial>-</dd></div>
+                <div><dt>Tiền cọc tham chiếu</dt><dd data-product-deposit>-</dd></div>
+            </dl>
+            <div class="surface price-panel">
+                <h2>Giá thuê</h2>
+                <div data-product-prices></div>
+            </div>
+            <div class="detail-actions" data-product-actions>
+                <button th:if="${currentUser == null or currentUser.role == null or currentUser.role != 0}" class="button primary" type="button" data-add-current-product>
+                    <i data-lucide="plus"></i> Thêm vào đơn
+                </button>
+                <a th:if="${currentUser == null or currentUser.role == null or currentUser.role != 0}" class="button ghost" th:href="@{/booking}">Đặt lịch</a>
+                <span th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="price-chip subtle">Quản trị viên chỉ xem thông tin thiết bị.</span>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -15,6 +15,7 @@ public interface BookingService {
     Page<BookingDTO> getBookings(Integer page);
     MessageResponse acceptBooking(AcceptBookingRequest acceptBookingRequest);
     MessageResponse updateStatusBooking(UpdateStatusBookingRequest updateStatusBookingRequest);
+    MessageResponse cancelBooking(Long idBooking, Long idUser);
     Object getBookingsByUser(Long idUser);
     Object getBookingById(Long idBooking);
 }

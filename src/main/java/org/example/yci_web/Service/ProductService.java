@@ -18,4 +18,6 @@ public interface ProductService {
     MessageResponse updateProduct(ProductRequest productRequest);
     MessageResponse deleteProduct(Long idProduct);
     MessageResponse addRentalPriceProduct(RentalPriceProductRequest rentalPriceProductRequest);
+    MessageResponse updateRentalPriceProduct(RentalPriceProductRequest rentalPriceProductRequest);
+    MessageResponse deleteRentalPriceProduct(Long idRentalPrice);
 }

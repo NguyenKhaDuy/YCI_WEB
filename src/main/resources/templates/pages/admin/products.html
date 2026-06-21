@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Thiết bị</p>
+                <h1>Quản lý máy ảnh, ống kính và phụ kiện</h1>
+            </div>
+        </div>
+
+        <section class="admin-grid two">
+            <form class="surface form-grid" data-admin-product-form enctype="multipart/form-data">
+                <h2>Thông tin thiết bị</h2>
+                <input type="hidden" name="idProduct">
+                <label>
+                    <span>Tên thiết bị</span>
+                    <input name="nameProduct" required>
+                </label>
+                <div class="form-row two">
+                    <label>
+                        <span>Thương hiệu</span>
+                        <input name="brand" required>
+                    </label>
+                    <label>
+                        <span>Serial</span>
+                        <input name="serialNumber" required>
+                    </label>
+                </div>
+                <div class="form-row two">
+                    <label>
+                        <span>Danh mục</span>
+                        <select name="idCategory" data-admin-product-category required></select>
+                    </label>
+                    <label>
+                        <span>Tiền cọc</span>
+                        <input name="depositPrice" type="number" min="0" step="1000" required>
+                    </label>
+                </div>
+                <label>
+                    <span>Mô tả</span>
+                    <textarea name="description" rows="4" required></textarea>
+                </label>
+                <label>
+                    <span>Hình ảnh</span>
+                    <input name="images" type="file" accept="image/*" multiple>
+                </label>
+                <div class="button-row">
+                    <button class="button primary" type="submit">Lưu thiết bị</button>
+                    <button class="button ghost" type="button" data-reset-product-form>Làm mới</button>
+                </div>
+            </form>
+
+            <form class="surface form-grid" data-admin-price-form>
+                <h2>Giá thuê thiết bị</h2>
+                <input type="hidden" name="idRentalPrice">
+                <label>
+                    <span>Thiết bị</span>
+                    <select name="productId" data-price-product-select required></select>
+                </label>
+                <label>
+                    <span>Loại giá</span>
+                    <select name="typeId" data-price-type-select required></select>
+                </label>
+                <label>
+                    <span>Giá</span>
+                    <input name="price" type="number" min="0" step="1000" required>
+                </label>
+                <button class="button ghost" type="submit" data-price-submit>Thêm giá thuê</button>
+                <button class="button ghost" type="button" data-reset-price-form>Làm mới giá</button>
+            </form>
+        </section>
+
+        <section class="toolbar surface">
+            <label class="search-field">
+                <i data-lucide="search"></i>
+                <input data-admin-product-search type="search" placeholder="Tìm tên thiết bị, thương hiệu, serial, danh mục">
+            </label>
+            <select class="select" data-admin-product-category-filter>
+                <option value="">Tất cả danh mục</option>
+            </select>
+            <select class="select" data-admin-product-status-filter>
+                <option value="">Tất cả tình trạng</option>
+            </select>
+        </section>
+
+        <section class="surface table-wrap">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Thiết bị</th>
+                    <th>Danh mục</th>
+                    <th>Giá thuê</th>
+                    <th>Tình trạng</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody data-admin-products-table></tbody>
+            </table>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

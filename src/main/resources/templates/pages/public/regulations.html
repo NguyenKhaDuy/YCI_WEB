@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="page-hero compact">
+        <div>
+            <p class="eyebrow">Quy định</p>
+            <h1>Điều kiện giữ lịch, nhận máy và hoàn trả</h1>
+            <p>Các quy định được quản trị cập nhật để đồng bộ với quy trình tiếp nhận và xử lý đơn thuê.</p>
+        </div>
+    </section>
+
+    <section class="regulation-board" data-regulation-board></section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

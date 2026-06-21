@@ -123,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             categoryEntity = categoryRepository.findById(idCategory).get();
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Category not found");
+            messageResponse.setMessage("Không tìm thấy danh mục");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
@@ -196,11 +196,11 @@ public class ProductServiceImpl implements ProductService {
             dataResponse.setData(productDTO);
             dataResponse.setStatus(HttpStatus.OK);
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Product not found");
+            messageResponse.setMessage("Không tìm thấy thiết bị");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
-        return null;
+        return dataResponse;
     }
 
     @Override
@@ -211,15 +211,19 @@ public class ProductServiceImpl implements ProductService {
         try {
             categoryEntity = categoryRepository.findById(productRequest.getIdCategory()).get();
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Category not found");
+            messageResponse.setMessage("Không tìm thấy danh mục");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
-        try {
-            statusEntity = statusRepository.findByStatusCode("AVAILABLE");
-        } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Category not found");
+        statusEntity = statusRepository.findByStatusCode("AVAILABLE");
+        if (statusEntity == null) {
+            messageResponse.setMessage("Không tìm thấy trạng thái thiết bị AVAILABLE");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
+            return messageResponse;
+        }
+        if (!hasUploadedImages(productRequest.getImages())) {
+            messageResponse.setMessage("Vui lòng chọn ít nhất một hình ảnh thiết bị");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
             return messageResponse;
         }
         ProductEntity productEntity = new ProductEntity();
@@ -230,6 +234,9 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setUpdatedAt(LocalDateTime.now());
         List<ImageEntity> imageEntities = new ArrayList<>();
         for (MultipartFile image : productRequest.getImages()) {
+            if (image == null || image.isEmpty()) {
+                continue;
+            }
             ImageEntity imageEntity = new ImageEntity();
             imageEntity.setProductEntity(productEntity);
             try {
@@ -241,7 +248,7 @@ public class ProductServiceImpl implements ProductService {
         }
         productEntity.setImageEntities(imageEntities);
         productRepository.save(productEntity);
-        messageResponse.setMessage("Success");
+        messageResponse.setMessage("Thêm thiết bị thành công");
         messageResponse.setStatus(HttpStatus.OK);
         return messageResponse;
     }
@@ -255,14 +262,13 @@ public class ProductServiceImpl implements ProductService {
         try {
             categoryEntity = categoryRepository.findById(productRequest.getIdCategory()).get();
         } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Category not found");
+            messageResponse.setMessage("Không tìm thấy danh mục");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
-        try {
-            statusEntity = statusRepository.findByStatusCode("AVAILABLE");
-        } catch (NoSuchElementException ex) {
-            messageResponse.setMessage("Category not found");
+        statusEntity = statusRepository.findByStatusCode("AVAILABLE");
+        if (statusEntity == null) {
+            messageResponse.setMessage("Không tìm thấy trạng thái thiết bị AVAILABLE");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
@@ -271,11 +277,13 @@ public class ProductServiceImpl implements ProductService {
             modelMapper.map(productRequest, productEntity);
             productEntity.setCategoryEntity(categoryEntity);
             productEntity.setStatusEntity(statusEntity);
-            productEntity.setCreatedAt(LocalDateTime.now());
             productEntity.setUpdatedAt(LocalDateTime.now());
-            if (productRequest.getImages() != null) {
+            if (hasUploadedImages(productRequest.getImages())) {
                 List<ImageEntity> imageEntities = new ArrayList<>();
                 for (MultipartFile image : productRequest.getImages()) {
+                    if (image == null || image.isEmpty()) {
+                        continue;
+                    }
                     ImageEntity imageEntity = new ImageEntity();
                     imageEntity.setProductEntity(productEntity);
                     try {
@@ -289,10 +297,10 @@ public class ProductServiceImpl implements ProductService {
             }
             productEntity.setUpdatedAt(LocalDateTime.now());
             productRepository.save(productEntity);
-            messageResponse.setMessage("Success");
+            messageResponse.setMessage("Cập nhật thiết bị thành công");
             messageResponse.setStatus(HttpStatus.OK);
         }catch (NoSuchElementException ex){
-            messageResponse.setMessage("Product not found");
+            messageResponse.setMessage("Không tìm thấy thiết bị");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
@@ -305,11 +313,11 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductEntity productEntity = productRepository.findById(idProduct).get();
             productRepository.delete(productEntity);
-            messageResponse.setMessage("Success");
+            messageResponse.setMessage("Xóa thiết bị thành công");
             messageResponse.setStatus(HttpStatus.OK);
             return messageResponse;
         }catch (NoSuchElementException ex){
-            messageResponse.setMessage("Product not found");
+            messageResponse.setMessage("Không tìm thấy thiết bị");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
@@ -320,17 +328,25 @@ public class ProductServiceImpl implements ProductService {
         MessageResponse messageResponse = new MessageResponse();
         ProductEntity productEntity = null;
         RentalTypeEntity rentalTypeEntity = null;
+        if (rentalPriceProductRequest.getProductId() == null
+                || rentalPriceProductRequest.getTypeId() == null
+                || rentalPriceProductRequest.getPrice() == null
+                || rentalPriceProductRequest.getPrice() <= 0) {
+            messageResponse.setMessage("Vui lòng nhập đủ thiết bị, loại giá và giá thuê hợp lệ");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
         try{
             productEntity = productRepository.findById(rentalPriceProductRequest.getProductId()).get();
         }catch (NoSuchElementException ex){
-            messageResponse.setMessage("Product not found");
+            messageResponse.setMessage("Không tìm thấy thiết bị");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
         try{
             rentalTypeEntity = rentalTypeRepository.findById(rentalPriceProductRequest.getTypeId()).get();
         }catch (NoSuchElementException ex){
-            messageResponse.setMessage("Type not found");
+            messageResponse.setMessage("Không tìm thấy loại giá thuê");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
@@ -339,8 +355,73 @@ public class ProductServiceImpl implements ProductService {
         rentalPriceEntity.setProductEntity(productEntity);
         rentalPriceEntity.setRentalTypeEntity(rentalTypeEntity);
         rentalPriceRepository.save(rentalPriceEntity);
-        messageResponse.setMessage("Success");
+        messageResponse.setMessage("Thêm giá thuê thành công");
         messageResponse.setStatus(HttpStatus.OK);
         return messageResponse;
+    }
+
+    @Override
+    public MessageResponse updateRentalPriceProduct(RentalPriceProductRequest rentalPriceProductRequest) {
+        MessageResponse messageResponse = new MessageResponse();
+        if (rentalPriceProductRequest.getIdRentalPrice() == null) {
+            messageResponse.setMessage("Thiếu mã giá thuê cần cập nhật");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        if (rentalPriceProductRequest.getPrice() != null && rentalPriceProductRequest.getPrice() <= 0) {
+            messageResponse.setMessage("Giá thuê phải lớn hơn 0");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        try {
+            RentalPriceEntity rentalPriceEntity = rentalPriceRepository.findById(rentalPriceProductRequest.getIdRentalPrice()).get();
+            if (rentalPriceProductRequest.getPrice() != null) {
+                rentalPriceEntity.setPrice(rentalPriceProductRequest.getPrice());
+            }
+            if (rentalPriceProductRequest.getProductId() != null) {
+                ProductEntity productEntity = productRepository.findById(rentalPriceProductRequest.getProductId()).get();
+                rentalPriceEntity.setProductEntity(productEntity);
+            }
+            if (rentalPriceProductRequest.getTypeId() != null) {
+                RentalTypeEntity rentalTypeEntity = rentalTypeRepository.findById(rentalPriceProductRequest.getTypeId()).get();
+                rentalPriceEntity.setRentalTypeEntity(rentalTypeEntity);
+            }
+            rentalPriceRepository.save(rentalPriceEntity);
+            messageResponse.setMessage("Cập nhật giá thuê thành công");
+            messageResponse.setStatus(HttpStatus.OK);
+            return messageResponse;
+        } catch (NoSuchElementException ex) {
+            messageResponse.setMessage("Không tìm thấy giá thuê, thiết bị hoặc loại giá");
+            messageResponse.setStatus(HttpStatus.NOT_FOUND);
+            return messageResponse;
+        }
+    }
+
+    @Override
+    public MessageResponse deleteRentalPriceProduct(Long idRentalPrice) {
+        MessageResponse messageResponse = new MessageResponse();
+        try {
+            RentalPriceEntity rentalPriceEntity = rentalPriceRepository.findById(idRentalPrice).get();
+            rentalPriceRepository.delete(rentalPriceEntity);
+            messageResponse.setMessage("Xóa giá thuê thành công");
+            messageResponse.setStatus(HttpStatus.OK);
+            return messageResponse;
+        } catch (NoSuchElementException ex) {
+            messageResponse.setMessage("Không tìm thấy giá thuê");
+            messageResponse.setStatus(HttpStatus.NOT_FOUND);
+            return messageResponse;
+        }
+    }
+
+    private boolean hasUploadedImages(List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) {
+            return false;
+        }
+        for (MultipartFile image : images) {
+            if (image != null && !image.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
