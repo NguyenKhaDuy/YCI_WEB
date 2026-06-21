@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | YCI Camera Rental'">YCI Camera Rental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/yci-theme.css}">
+</head>
+<body>
+<header class="site-header" th:fragment="siteHeader">
+    <a class="brand" th:href="@{/}" aria-label="YCI Camera Rental">
+        <img class="brand-logo" th:src="@{/images/logo.png}" alt="YCI Camera Rental">
+        <span>
+            <strong>YCI Camera</strong>
+            <small>Cho thuê máy ảnh</small>
+        </span>
+    </a>
+    <nav class="site-nav" aria-label="Điều hướng chính">
+        <a th:href="@{/products}" th:classappend="${pageName == 'catalog' || pageName == 'product-detail'} ? 'is-active' : ''">Thiết bị</a>
+        <a th:href="@{/pricing}" th:classappend="${pageName == 'pricing'} ? 'is-active' : ''">Bảng giá</a>
+        <a th:href="@{/regulations}" th:classappend="${pageName == 'regulations'} ? 'is-active' : ''">Quy định</a>
+        <a th:if="${currentUser == null or currentUser.role == null or currentUser.role != 0}" th:href="@{/booking}" th:classappend="${pageName == 'booking'} ? 'is-active' : ''">Đặt thuê</a>
+        <a th:if="${currentUser != null and (currentUser.role == null or currentUser.role != 0)}" th:href="@{/orders}" th:classappend="${pageName == 'orders'} ? 'is-active' : ''">Đơn của tôi</a>
+        <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 2}" th:href="@{/staff}" th:classappend="${#strings.startsWith(pageName, 'staff')} ? 'is-active' : ''">Nhân viên</a>
+        <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" th:href="@{/admin}" th:classappend="${#strings.startsWith(pageName, 'admin') || #strings.startsWith(pageName, 'staff')} ? 'is-active' : ''">Quản trị</a>
+    </nav>
+    <div class="header-actions">
+        <a th:if="${currentUser == null or currentUser.role == null or currentUser.role != 0}" class="icon-button cart-link" th:href="@{/booking}" aria-label="Giỏ đặt thuê">
+            <i data-lucide="shopping-bag"></i>
+            <span class="cart-count" data-cart-count>0</span>
+        </a>
+        <a th:if="${currentUser == null}" class="button ghost" th:href="@{/login}">Đăng nhập</a>
+        <div th:if="${currentUser != null}" class="user-menu">
+            <a class="avatar-chip" th:href="@{/profile}">
+                <span th:text="${#strings.substring(currentUser.fullName != null ? currentUser.fullName : currentUser.email, 0, 1)}">Y</span>
+                <strong th:text="${currentUser.fullName != null ? currentUser.fullName : currentUser.email}">Tài khoản</strong>
+            </a>
+            <form th:action="@{/logout}" method="post">
+                <button class="icon-button" type="submit" aria-label="Đăng xuất">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<aside class="admin-sidebar" th:fragment="adminSidebar">
+    <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="admin-link" th:classappend="${pageName == 'admin-dashboard'} ? 'is-active' : ''" th:href="@{/admin}">
+        <i data-lucide="layout-dashboard"></i><span>Tổng quan</span>
+    </a>
+    <a class="admin-link" th:classappend="${pageName == 'staff-bookings' || pageName == 'admin-bookings'} ? 'is-active' : ''"
+       th:href="${currentUser != null and currentUser.role != null and currentUser.role == 0} ? @{/admin/bookings} : @{/staff}">
+        <i data-lucide="clipboard-list"></i><span>Đơn thuê</span>
+    </a>
+    <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="admin-link" th:classappend="${pageName == 'admin-products'} ? 'is-active' : ''" th:href="@{/admin/products}">
+        <i data-lucide="camera"></i><span>Thiết bị</span>
+    </a>
+    <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="admin-link" th:classappend="${pageName == 'admin-customers'} ? 'is-active' : ''" th:href="@{/admin/customers}">
+        <i data-lucide="users"></i><span>Khách hàng</span>
+    </a>
+    <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="admin-link" th:classappend="${pageName == 'admin-finance'} ? 'is-active' : ''" th:href="@{/admin/finance}">
+        <i data-lucide="wallet-cards"></i><span>Doanh thu</span>
+    </a>
+    <a th:if="${currentUser != null and currentUser.role != null and currentUser.role == 0}" class="admin-link" th:classappend="${pageName == 'admin-settings'} ? 'is-active' : ''" th:href="@{/admin/settings}">
+        <i data-lucide="sliders-horizontal"></i><span>Cấu hình</span>
+    </a>
+</aside>
+
+<section class="flash-stack" th:fragment="flash">
+    <div th:if="${success}" class="flash success" th:text="${success}">Success</div>
+    <div th:if="${error}" class="flash error" th:text="${error}">Error</div>
+</section>
+
+<footer class="site-footer" th:fragment="footer">
+    <div>
+        <strong>YCI Camera Rental</strong>
+        <p>Máy ảnh, ống kính, đèn flash và phụ kiện sẵn sàng cho lịch quay chụp của bạn.</p>
+    </div>
+    <div class="footer-grid">
+        <span><i data-lucide="map-pin"></i> Studio YCI</span>
+        <span><i data-lucide="phone"></i> 0900 000 000</span>
+        <span><i data-lucide="clock-3"></i> 08:00 - 21:00</span>
+    </div>
+</footer>
+
+<div th:fragment="scripts">
+    <script th:inline="javascript">
+        window.YCI_SESSION = {
+            user: /*[[${currentUser}]]*/ null
+        };
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script th:src="@{/js/yci-core.js}"></script>
+    <script th:src="@{/js/yci-public.js}"></script>
+    <script th:src="@{/js/yci-admin.js}"></script>
+</div>
+</body>
+</html>

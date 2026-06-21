@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RentalPriceProductRequest {
-    private Long idRentalPrice;
-    private Long productId;
-    private Long typeId;
-    private Double price;
+public class UpdateUserRoleRequest {
+    private Long idUser;
+    private Integer role;
 }

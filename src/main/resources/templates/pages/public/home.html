@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main>
+    <section class="hero home-hero">
+        <img class="hero-image" th:src="@{/images/yci-hero.png}" alt="Quầy thuê thiết bị nhiếp ảnh YCI">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="eyebrow">YCI Camera Rental</p>
+            <h1>Thuê thiết bị nhiếp ảnh rõ ràng từ lịch đặt đến hoàn trả.</h1>
+            <p>Tìm máy ảnh, ống kính, đèn flash và phụ kiện theo lịch chụp; theo dõi cọc, thanh toán và trạng thái đơn trong một quy trình gọn gàng.</p>
+            <form class="hero-search" action="/products" method="get">
+                <i data-lucide="search"></i>
+                <input name="q" type="search" placeholder="Tìm Sony A7, Canon, lens 85mm...">
+                <button class="button primary" type="submit">Tìm thiết bị</button>
+            </form>
+            <div class="hero-stats">
+                <span><strong data-stat-products>0</strong> thiết bị</span>
+                <span><strong data-stat-categories>0</strong> danh mục</span>
+                <span><strong data-stat-available>0</strong> sẵn sàng</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section about-store">
+        <div class="about-copy">
+            <p class="eyebrow">Giới thiệu cửa hàng</p>
+            <h2>YCI chuẩn bị thiết bị theo lịch chụp thật, không chỉ là một danh sách sản phẩm.</h2>
+            <p>Website hỗ trợ khách xem kho máy ảnh, ống kính, đèn flash và phụ kiện; đặt thuê nhiều thiết bị trong một đơn; theo dõi giấy tờ, tiền cọc, thanh toán và trạng thái xử lý sau khi gửi yêu cầu.</p>
+            <div class="store-facts">
+                <span><i data-lucide="badge-check"></i> Kiểm tra ngoại hình và serial trước khi giao</span>
+                <span><i data-lucide="receipt-text"></i> Cọc, thanh toán và phí phát sinh được ghi nhận theo đơn</span>
+                <span><i data-lucide="history"></i> Lịch sử thuê gắn với tài khoản khách hàng</span>
+            </div>
+        </div>
+        <div class="about-ops">
+            <article>
+                <strong>08:00 - 21:00</strong>
+                <span>Nhận và trả thiết bị tại Studio YCI</span>
+            </article>
+            <article>
+                <strong>Nhiều thiết bị</strong>
+                <span>Ghép máy, lens, flash và phụ kiện trong cùng một đơn thuê</span>
+            </article>
+            <article>
+                <strong>Minh bạch</strong>
+                <span>Hiển thị giá thuê, cọc tham chiếu và trạng thái xử lý</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Danh mục</p>
+                <h2>Chọn nhanh theo nhu cầu chụp</h2>
+            </div>
+            <a class="button ghost" th:href="@{/products}">Xem tất cả</a>
+        </div>
+        <div class="category-strip" data-category-strip></div>
+    </section>
+
+    <section class="section tinted">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Thiết bị nổi bật</p>
+                <h2>Giá thuê và tình trạng cập nhật từ hệ thống</h2>
+            </div>
+            <a class="button ghost" th:href="@{/pricing}">Bảng giá</a>
+        </div>
+        <div class="product-grid" data-featured-products></div>
+    </section>
+
+    <section class="workflow-band">
+        <div>
+            <p class="eyebrow">Quy trình</p>
+            <h2>Từ đặt lịch đến trả máy được tách rõ từng bước</h2>
+        </div>
+        <div class="workflow-list">
+            <article>
+                <i data-lucide="calendar-check"></i>
+                <h3>Đặt lịch</h3>
+                <p>Chọn nhiều thiết bị, thời gian thuê và loại giá phù hợp.</p>
+            </article>
+            <article>
+                <i data-lucide="badge-check"></i>
+                <h3>Xác nhận</h3>
+                <p>Nhân viên kiểm tra lịch, giấy tờ và lập hợp đồng thuê.</p>
+            </article>
+            <article>
+                <i data-lucide="rotate-ccw"></i>
+                <h3>Hoàn trả</h3>
+                <p>Ghi nhận tình trạng, phí phát sinh và thanh toán còn lại.</p>
+            </article>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

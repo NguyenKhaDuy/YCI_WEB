@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="page-hero compact">
+        <div>
+            <p class="eyebrow">Kho thiết bị</p>
+            <h1>Máy ảnh, ống kính, đèn flash và phụ kiện</h1>
+            <p>Lọc theo danh mục, tìm theo tên hoặc thương hiệu, thêm vào đơn thuê và tiếp tục với lịch mong muốn.</p>
+        </div>
+        <a class="button primary" th:href="@{/booking}"><i data-lucide="shopping-bag"></i> Đơn thuê</a>
+    </section>
+
+    <section class="toolbar surface catalog-toolbar">
+        <label class="search-field compact-search">
+            <i data-lucide="search"></i>
+            <input data-product-search type="search" placeholder="Tìm tên thiết bị, thương hiệu, số serial">
+        </label>
+        <div class="segmented" data-category-filter></div>
+        <select class="select" data-status-filter aria-label="Lọc tình trạng">
+            <option value="">Tất cả tình trạng</option>
+            <option value="AVAILABLE">Sẵn sàng</option>
+            <option value="RENTED">Đang thuê</option>
+            <option value="MAINTENANCE">Bảo trì</option>
+        </select>
+    </section>
+
+    <section class="catalog-layout">
+        <aside class="surface catalog-summary">
+            <div>
+                <p class="eyebrow">Kho YCI</p>
+                <h2>Tổng quan kho</h2>
+            </div>
+            <div class="metric-row">
+                <span>Tổng thiết bị</span>
+                <strong data-catalog-count>0</strong>
+            </div>
+            <div class="metric-row">
+                <span>Sẵn sàng</span>
+                <strong data-catalog-available>0</strong>
+            </div>
+            <div class="metric-row">
+                <span>Trong đơn thuê</span>
+                <strong data-cart-count-inline>0</strong>
+            </div>
+            <div class="catalog-note">
+                <i data-lucide="info"></i>
+                <p>Giá và cọc hiển thị là tham khảo. Nhân viên sẽ xác nhận tình trạng, giấy tờ và mức cọc trước khi giữ lịch.</p>
+            </div>
+            <a class="button full" th:href="@{/booking}">Tiếp tục đặt lịch</a>
+        </aside>
+        <div>
+            <div class="product-grid" data-product-list></div>
+            <div class="empty-state" data-empty-products hidden>
+                <i data-lucide="search-x"></i>
+                <h3>Không có thiết bị phù hợp</h3>
+                <p>Thử bỏ bớt bộ lọc hoặc tìm bằng từ khóa ngắn hơn.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

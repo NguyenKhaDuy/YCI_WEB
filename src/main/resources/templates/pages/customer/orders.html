@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="page-hero compact">
+        <div>
+            <p class="eyebrow">Lịch sử thuê</p>
+            <h1>Trạng thái đơn, tiền cọc và thanh toán</h1>
+            <p>Dữ liệu lấy từ endpoint đơn thuê theo người dùng đang lưu trong session.</p>
+        </div>
+    </section>
+
+    <section class="order-timeline" data-customer-orders></section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

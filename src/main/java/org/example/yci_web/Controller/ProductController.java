@@ -57,7 +57,7 @@ public class ProductController {
     @PostMapping(value = "/api/admin/product")
     public ResponseEntity<Object> addProduct(@ModelAttribute ProductRequest productRequest) {
         MessageResponse messageResponse = productService.addProduct(productRequest);
-        return new ResponseEntity<>(messageResponse, HttpStatus.OK);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
     }
 
     @PutMapping(value = "/api/admin/product")
@@ -75,6 +75,18 @@ public class ProductController {
     @PostMapping(value = "/api/admin/product/rental-price")
     public ResponseEntity<Object> addRentalPrice(@RequestBody RentalPriceProductRequest rentalPriceProductRequest) {
         MessageResponse messageResponse = productService.addRentalPriceProduct(rentalPriceProductRequest);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
+    }
+
+    @PutMapping(value = "/api/admin/product/rental-price")
+    public ResponseEntity<Object> updateRentalPrice(@RequestBody RentalPriceProductRequest rentalPriceProductRequest) {
+        MessageResponse messageResponse = productService.updateRentalPriceProduct(rentalPriceProductRequest);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
+    }
+
+    @DeleteMapping(value = "/api/admin/product/rental-price/id={idRentalPrice}")
+    public ResponseEntity<Object> deleteRentalPrice(@PathVariable("idRentalPrice") Long idRentalPrice) {
+        MessageResponse messageResponse = productService.deleteRentalPriceProduct(idRentalPrice);
         return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
     }
 }

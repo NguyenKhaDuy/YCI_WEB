@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Cấu hình</p>
+                <h1>Danh mục, trạng thái và quy định</h1>
+            </div>
+        </div>
+
+        <section class="settings-grid">
+            <div class="surface settings-panel">
+                <h2>Danh mục thiết bị</h2>
+                <form class="inline-form" data-category-form>
+                    <input type="hidden" name="idCategory">
+                    <input name="nameCategory" placeholder="Tên danh mục" required>
+                    <input name="description" placeholder="Mô tả">
+                    <button class="icon-button" type="submit" aria-label="Lưu danh mục"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-category-list></div>
+            </div>
+
+            <div class="surface settings-panel">
+                <h2>Loại giá thuê</h2>
+                <form class="inline-form" data-rental-type-form>
+                    <input type="hidden" name="idRentalType">
+                    <input name="type" placeholder="Theo ngày, theo giờ..." required>
+                    <button class="icon-button" type="submit" aria-label="Lưu loại giá"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-rental-type-list></div>
+            </div>
+
+            <div class="surface settings-panel">
+                <h2>Trạng thái hệ thống</h2>
+                <form class="inline-form" data-status-form>
+                    <input type="hidden" name="idStatus">
+                    <input name="statusCode" placeholder="AVAILABLE, RENTING..." required>
+                    <button class="icon-button" type="submit" aria-label="Lưu trạng thái"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-status-list></div>
+            </div>
+
+            <div class="surface settings-panel">
+                <h2>Loại tiền cọc</h2>
+                <form class="inline-form" data-deposit-form>
+                    <input type="hidden" name="idDepositType">
+                    <input name="type" placeholder="Cọc 30%, cọc toàn phần" required>
+                    <input name="percentDeposit" type="number" min="0" max="100" placeholder="%" required>
+                    <button class="icon-button" type="submit" aria-label="Lưu tiền cọc"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-deposit-list></div>
+            </div>
+
+            <div class="surface settings-panel large">
+                <h2>Quy định thuê</h2>
+                <form class="inline-form tall" data-rental-regulation-form>
+                    <input type="hidden" name="idRentalRegulations">
+                    <textarea name="regulation" placeholder="Nội dung quy định" required></textarea>
+                    <button class="icon-button" type="submit" aria-label="Lưu quy định"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-rental-regulation-list></div>
+            </div>
+
+            <div class="surface settings-panel large">
+                <h2>Quy định giữ lịch</h2>
+                <form class="inline-form tall" data-schedule-form>
+                    <input type="hidden" name="idScheduleKeepingRegulations">
+                    <textarea name="scheduleKeepingRegulation" placeholder="Nội dung quy định giữ lịch" required></textarea>
+                    <button class="icon-button" type="submit" aria-label="Lưu quy định giữ lịch"><i data-lucide="save"></i></button>
+                </form>
+                <div class="compact-list" data-schedule-list></div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

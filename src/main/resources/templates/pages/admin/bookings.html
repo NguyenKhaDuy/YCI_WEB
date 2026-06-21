@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Đơn thuê</p>
+                <h1>Quản lý đơn thuê và lịch đặt thiết bị</h1>
+                <p>Theo dõi khách hàng, thiết bị, giấy tờ thế chấp, tiền cọc và các bước nhận trả.</p>
+            </div>
+            <button class="button ghost" type="button" data-refresh-admin-bookings><i data-lucide="refresh-cw"></i> Tải lại</button>
+        </div>
+
+        <section class="toolbar surface">
+            <label class="search-field">
+                <i data-lucide="search"></i>
+                <input data-admin-booking-search type="search" placeholder="Tìm mã đơn, tên khách, số điện thoại">
+            </label>
+            <select class="select" data-admin-booking-status>
+                <option value="">Tất cả trạng thái</option>
+            </select>
+        </section>
+        <section class="admin-tabs surface" data-booking-status-tabs></section>
+
+        <section class="admin-grid bookings">
+            <div class="surface table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Lịch thuê</th>
+                        <th>Giá trị</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody data-admin-bookings-table></tbody>
+                </table>
+            </div>
+            <aside class="surface inspector" data-booking-inspector>
+                <div class="empty-state small">
+                    <i data-lucide="mouse-pointer-click"></i>
+                    <h3>Chọn một đơn thuê</h3>
+                    <p>Chi tiết khách hàng, giấy tờ, cọc và thiết bị sẽ hiển thị tại đây.</p>
+                </div>
+            </aside>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

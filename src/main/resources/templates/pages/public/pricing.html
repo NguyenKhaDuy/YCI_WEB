@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="page-hero compact">
+        <div>
+            <p class="eyebrow">Bảng giá</p>
+            <h1>Giá thuê theo gói giờ và cọc tham chiếu</h1>
+            <p>Bảng giá lấy trực tiếp từ từng thiết bị; mức cọc thực thu được nhân viên áp dụng khi xác nhận đơn.</p>
+        </div>
+    </section>
+
+    <section class="table-wrap surface pricing-table">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Thiết bị</th>
+                <th>Danh mục</th>
+                <th>Tình trạng</th>
+                <th>Giá thuê</th>
+                <th>Cọc tham chiếu</th>
+            </tr>
+            </thead>
+            <tbody data-pricing-table></tbody>
+        </table>
+    </section>
+
+    <section class="section no-pad">
+        <div class="section-heading">
+            <div>
+            <p class="eyebrow">Chính sách cọc</p>
+            <h2>Các mức cọc đang áp dụng</h2>
+            </div>
+        </div>
+        <div class="info-grid" data-deposit-types></div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

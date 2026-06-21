@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="auth-shell">
+    <section class="auth-panel">
+        <div>
+            <p class="eyebrow">Tài khoản YCI</p>
+            <h1>Đăng nhập để đặt lịch và theo dõi đơn thuê</h1>
+            <p class="muted">Sau khi đăng nhập, giỏ thiết bị sẽ được gắn với hồ sơ khách hàng để nhân viên xác nhận lịch, cọc và giấy tờ nhanh hơn.</p>
+        </div>
+        <form class="form-grid" th:action="@{/login}" method="post">
+            <label>
+                <span>Email</span>
+                <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+                <span>Mật khẩu</span>
+                <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="button primary full" type="submit">Đăng nhập</button>
+        </form>
+        <p class="muted center">Chưa có tài khoản? <a th:href="@{/register}">Đăng ký mới</a></p>
+    </section>
+    <aside class="auth-aside logo-aside">
+        <img th:src="@{/images/logo.png}" alt="Logo YCI">
+        <div>
+            <h2>Quản lý lịch thuê bằng phiên đăng nhập riêng của bạn</h2>
+            <p>Sau khi đăng nhập, đơn thuê sẽ tự gắn với hồ sơ của bạn để nhân viên xác nhận lịch, tiền cọc, giấy tờ và lịch sử thuê chính xác hơn.</p>
+            <div class="auth-benefits">
+                <span><i data-lucide="calendar-check"></i> Quản lý lịch thuê</span>
+                <span><i data-lucide="clipboard-list"></i> Theo dõi trạng thái đơn</span>
+                <span><i data-lucide="badge-check"></i> Lưu thông tin khách hàng</span>
+                <span><i data-lucide="wallet-cards"></i> Xem cọc và thanh toán</span>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

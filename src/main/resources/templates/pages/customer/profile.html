@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="page-shell">
+    <section class="profile-header">
+        <div class="profile-avatar" th:text="${#strings.substring(currentUser.fullName != null ? currentUser.fullName : currentUser.email, 0, 1)}">Y</div>
+        <div>
+            <p class="eyebrow">Tài khoản</p>
+            <h1 th:text="${currentUser.fullName}">Khách hàng YCI</h1>
+            <p th:text="${currentUser.email}">email@yci.vn</p>
+        </div>
+        <a class="button ghost" th:href="@{/orders}">Lịch sử thuê</a>
+    </section>
+
+    <section class="split-sections">
+        <form class="surface form-grid two" th:action="@{/profile}" method="post">
+            <input type="hidden" name="idUser" th:value="${currentUser.idUser}">
+            <label>
+                <span>Họ tên</span>
+                <input name="fullName" th:value="${currentUser.fullName}" required>
+            </label>
+            <label>
+                <span>Số điện thoại</span>
+                <input name="phone" th:value="${currentUser.phone}" required>
+            </label>
+            <label>
+                <span>Email</span>
+                <input name="email" type="email" th:value="${currentUser.email}" required>
+            </label>
+            <label>
+                <span>CCCD</span>
+                <input name="cccd" th:value="${currentUser.cccd}" required>
+            </label>
+            <label class="span-2">
+                <span>Địa chỉ</span>
+                <input name="address" th:value="${currentUser.address}" required>
+            </label>
+            <button class="button primary span-2" type="submit">Cập nhật hồ sơ</button>
+        </form>
+
+        <form class="surface form-grid" data-password-form>
+            <h2>Đổi mật khẩu</h2>
+            <input type="hidden" name="email" th:value="${currentUser.email}">
+            <label>
+                <span>Mật khẩu hiện tại</span>
+                <input name="oldPassword" type="password" autocomplete="current-password" required>
+            </label>
+            <label>
+                <span>Mật khẩu mới</span>
+                <input name="newPassword" type="password" autocomplete="new-password" required>
+            </label>
+            <button class="button ghost" type="submit">Lưu mật khẩu</button>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

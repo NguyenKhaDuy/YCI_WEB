@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
+<body th:attr="data-page=${pageName}">
+<header th:replace="~{fragments/layout :: siteHeader}"></header>
+<section th:replace="~{fragments/layout :: flash}"></section>
+
+<main class="admin-layout">
+    <aside th:replace="~{fragments/layout :: adminSidebar}"></aside>
+    <section class="admin-content">
+        <div class="admin-heading">
+            <div>
+                <p class="eyebrow">Quản trị</p>
+                <h1>Tổng quan vận hành YCI</h1>
+            </div>
+            <a class="button primary" th:href="@{/admin/bookings}"><i data-lucide="clipboard-check"></i> Xử lý đơn</a>
+        </div>
+
+        <section class="metric-grid">
+            <article class="metric-card">
+                <span>Thiết bị</span>
+                <strong data-admin-products>0</strong>
+                <small>Trong kho cho thuê</small>
+            </article>
+            <article class="metric-card">
+                <span>Đơn thuê</span>
+                <strong data-admin-bookings>0</strong>
+                <small>Đang theo dõi</small>
+            </article>
+            <article class="metric-card">
+                <span>Khách hàng</span>
+                <strong data-admin-users>0</strong>
+                <small>Tài khoản hệ thống</small>
+            </article>
+            <article class="metric-card">
+                <span>Doanh thu ghi nhận</span>
+                <strong data-admin-revenue>0 d</strong>
+                <small>Từ các thanh toán đơn thuê</small>
+            </article>
+        </section>
+
+        <section class="ops-grid">
+            <a class="ops-card" th:href="@{/admin/products}">
+                <i data-lucide="boxes"></i>
+                <span>Quản lý danh mục, máy ảnh, ống kính, đèn flash và phụ kiện</span>
+            </a>
+            <a class="ops-card" th:href="@{/admin/bookings}">
+                <i data-lucide="calendar-range"></i>
+                <span>Theo dõi đơn thuê, lịch đặt và tình trạng sử dụng thiết bị</span>
+            </a>
+            <a class="ops-card" th:href="@{/admin/customers}">
+                <i data-lucide="user-cog"></i>
+                <span>Quản lý tài khoản người dùng, khách hàng và phân quyền</span>
+            </a>
+            <a class="ops-card" th:href="@{/admin/finance}">
+                <i data-lucide="chart-column"></i>
+                <span>Thống kê doanh thu theo ngày, tháng, năm và thanh toán</span>
+            </a>
+        </section>
+
+        <section class="admin-grid two">
+            <div class="surface">
+                <div class="section-heading tight">
+                    <div>
+                        <p class="eyebrow">Đơn mới</p>
+                        <h2>Yêu cầu cần xử lý</h2>
+                    </div>
+                </div>
+                <div class="compact-list" data-dashboard-bookings></div>
+            </div>
+            <div class="surface">
+                <div class="section-heading tight">
+                    <div>
+                        <p class="eyebrow">Kho thiết bị</p>
+                        <h2>Tình trạng sử dụng</h2>
+                    </div>
+                </div>
+                <div class="status-stack" data-dashboard-status></div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

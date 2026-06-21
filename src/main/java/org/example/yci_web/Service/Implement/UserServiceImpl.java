@@ -6,6 +6,7 @@ import org.example.yci_web.Model.DTO.UserDTO;
 import org.example.yci_web.Model.Request.RegisterRequest;
 import org.example.yci_web.Model.Request.UpdatePasswordRequest;
 import org.example.yci_web.Model.Request.UpdateProfileRequest;
+import org.example.yci_web.Model.Request.UpdateUserRoleRequest;
 import org.example.yci_web.Model.Response.DataResponse;
 import org.example.yci_web.Model.Response.MessageResponse;
 import org.example.yci_web.Repository.UserRepository;
@@ -39,16 +40,17 @@ public class UserServiceImpl implements UserService {
         MessageResponse messageResponse = new MessageResponse();
         UserEntity userEntity = userRepository.findByEmail(registerRequest.getEmail());
         if (userEntity != null) {
-            messageResponse.setMessage("Email already exists");
-            messageResponse.setStatus(HttpStatus.BAD_GATEWAY);
+            messageResponse.setMessage("Email đã được sử dụng");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
         }else {
             UserEntity user = new UserEntity();
             modelMapper.map(registerRequest, user);
+            user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
             user.setRole(1);
             userRepository.save(user);
-            messageResponse.setMessage("Success");
+            messageResponse.setMessage("Đăng ký tài khoản thành công");
             messageResponse.setStatus(HttpStatus.CREATED);
         }
         return messageResponse;
@@ -58,21 +60,23 @@ public class UserServiceImpl implements UserService {
     public Object login(String email, String password) {
         MessageResponse messageResponse = new MessageResponse();
         DataResponse dataResponse = new DataResponse();
-        try {
-            UserEntity userEntity = userRepository.findByEmail(email);
-            if(userEntity.getPassword().equals(passwordEncoder.encode(password))) {
-                LoginDTO loginDTO = new LoginDTO();
-                loginDTO.setEmail(email);
-                loginDTO.setIdUser(userEntity.getIdUser());
-                dataResponse.setMessage("Success");
-                dataResponse.setStatus(HttpStatus.OK);
-                dataResponse.setData(loginDTO);
-            }
-        }catch (NoSuchElementException e) {
-            messageResponse.setMessage("Can not find user");
+        UserEntity userEntity = userRepository.findByEmail(email);
+        if (userEntity == null) {
+            messageResponse.setMessage("Không tìm thấy tài khoản");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
+        if (!isPasswordMatched(password, userEntity.getPassword())) {
+            messageResponse.setMessage("Email hoặc mật khẩu không đúng");
+            messageResponse.setStatus(HttpStatus.UNAUTHORIZED);
+            return messageResponse;
+        }
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setEmail(email);
+        loginDTO.setIdUser(userEntity.getIdUser());
+        dataResponse.setMessage("Success");
+        dataResponse.setStatus(HttpStatus.OK);
+        dataResponse.setData(loginDTO);
         return dataResponse;
     }
 
@@ -81,39 +85,88 @@ public class UserServiceImpl implements UserService {
         MessageResponse messageResponse = new MessageResponse();
         try {
             UserEntity userEntity = userRepository.findByEmail(updatePasswordRequest.getEmail());
-            if (userEntity.getPassword().equals(passwordEncoder.encode(updatePasswordRequest.getOldPassword()))) {
+            if (userEntity == null) {
+                messageResponse.setMessage("Không tìm thấy tài khoản");
+                messageResponse.setStatus(HttpStatus.NOT_FOUND);
+                return messageResponse;
+            }
+            if (isPasswordMatched(updatePasswordRequest.getOldPassword(), userEntity.getPassword())) {
                 userEntity.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
                 userRepository.save(userEntity);
-                messageResponse.setMessage("Success");
+                messageResponse.setMessage("Đổi mật khẩu thành công");
                 messageResponse.setStatus(HttpStatus.OK);
             }else {
-                messageResponse.setMessage("Old password does not match");
+                messageResponse.setMessage("Mật khẩu cũ không đúng");
                 messageResponse.setStatus(HttpStatus.BAD_REQUEST);
             }
 
         }catch (NoSuchElementException e) {
-            messageResponse.setMessage("Can not find user");
+            messageResponse.setMessage("Không tìm thấy tài khoản");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
         return messageResponse;
     }
 
+    private boolean isPasswordMatched(String rawPassword, String savedPassword) {
+        if (rawPassword == null || savedPassword == null) {
+            return false;
+        }
+        if (savedPassword.startsWith("$2a$") || savedPassword.startsWith("$2b$") || savedPassword.startsWith("$2y$")) {
+            return passwordEncoder.matches(rawPassword, savedPassword);
+        }
+        return savedPassword.equals(rawPassword);
+    }
+
     @Override
     public MessageResponse updateProfile(UpdateProfileRequest updateProfileRequest) {
         MessageResponse messageResponse = new MessageResponse();
         try {
-            UserEntity userEntity = userRepository.findByEmail(updateProfileRequest.getEmail());
+            UserEntity userEntity = null;
+            if (updateProfileRequest.getIdUser() != null) {
+                userEntity = userRepository.findById(updateProfileRequest.getIdUser()).orElse(null);
+            }
+            if (userEntity == null) {
+                userEntity = userRepository.findByEmail(updateProfileRequest.getEmail());
+            }
+            if (userEntity == null) {
+                messageResponse.setMessage("Không tìm thấy tài khoản");
+                messageResponse.setStatus(HttpStatus.NOT_FOUND);
+                return messageResponse;
+            }
             modelMapper.map(updateProfileRequest, userEntity);
             userEntity.setUpdatedAt(LocalDateTime.now());
             userRepository.save(userEntity);
-            messageResponse.setMessage("Success");
+            messageResponse.setMessage("Cập nhật thông tin thành công");
             messageResponse.setStatus(HttpStatus.OK);
         }catch (NoSuchElementException e) {
-            messageResponse.setMessage("Can not find user");
+            messageResponse.setMessage("Không tìm thấy tài khoản");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
         }
         return messageResponse;
+    }
+
+    @Override
+    public MessageResponse updateRole(UpdateUserRoleRequest updateUserRoleRequest) {
+        MessageResponse messageResponse = new MessageResponse();
+        if (updateUserRoleRequest.getRole() == null || updateUserRoleRequest.getRole() < 0 || updateUserRoleRequest.getRole() > 2) {
+            messageResponse.setMessage("Vai trò không hợp lệ");
+            messageResponse.setStatus(HttpStatus.BAD_REQUEST);
+            return messageResponse;
+        }
+        try {
+            UserEntity userEntity = userRepository.findById(updateUserRoleRequest.getIdUser()).get();
+            userEntity.setRole(updateUserRoleRequest.getRole());
+            userEntity.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(userEntity);
+            messageResponse.setMessage("Cập nhật phân quyền thành công");
+            messageResponse.setStatus(HttpStatus.OK);
+            return messageResponse;
+        } catch (NoSuchElementException e) {
+            messageResponse.setMessage("Không tìm thấy tài khoản");
+            messageResponse.setStatus(HttpStatus.NOT_FOUND);
+            return messageResponse;
+        }
     }
 
     @Override
@@ -124,11 +177,11 @@ public class UserServiceImpl implements UserService {
         try{
             UserEntity userEntity = userRepository.findById(idUser).get();
             modelMapper.map(userEntity, userDTO);
-            dataResponse.setMessage("Success");
+            dataResponse.setMessage("Thành công");
             dataResponse.setStatus(HttpStatus.OK);
             dataResponse.setData(userDTO);
         }catch (NoSuchElementException e) {
-            messageResponse.setMessage("Can not find user");
+            messageResponse.setMessage("Không tìm thấy tài khoản");
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
