@@ -279,11 +279,11 @@ public class ProductServiceImpl implements ProductService {
             productEntity.setStatusEntity(statusEntity);
             productEntity.setUpdatedAt(LocalDateTime.now());
             if (hasUploadedImages(productRequest.getImages())) {
-                List<ImageEntity> imageEntities = new ArrayList<>();
                 for (MultipartFile image : productRequest.getImages()) {
                     if (image == null || image.isEmpty()) {
                         continue;
                     }
+
                     ImageEntity imageEntity = new ImageEntity();
                     imageEntity.setProductEntity(productEntity);
                     try {
@@ -291,9 +291,9 @@ public class ProductServiceImpl implements ProductService {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    imageEntities.add(imageEntity);
+
+                    productEntity.getImageEntities().add(imageEntity);
                 }
-                productEntity.setImageEntities(imageEntities);
             }
             productEntity.setUpdatedAt(LocalDateTime.now());
             productRepository.save(productEntity);
