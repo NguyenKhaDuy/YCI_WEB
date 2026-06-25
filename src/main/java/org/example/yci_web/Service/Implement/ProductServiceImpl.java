@@ -40,6 +40,8 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     RentalPriceRepository rentalPriceRepository;
     @Autowired
+    ImageRepository imageRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     @Override
@@ -321,6 +323,23 @@ public class ProductServiceImpl implements ProductService {
             messageResponse.setStatus(HttpStatus.NOT_FOUND);
             return messageResponse;
         }
+    }
+
+    @Override
+    public MessageResponse deleteProductImage(Long idProduct, Long idImage) {
+        MessageResponse messageResponse = new MessageResponse();
+        return imageRepository.findByIdImageAndProductEntity_IdProduct(idImage, idProduct)
+                .map(imageEntity -> {
+                    imageRepository.delete(imageEntity);
+                    messageResponse.setMessage("Xóa hình ảnh thành công");
+                    messageResponse.setStatus(HttpStatus.OK);
+                    return messageResponse;
+                })
+                .orElseGet(() -> {
+                    messageResponse.setMessage("Không tìm thấy hình ảnh của thiết bị");
+                    messageResponse.setStatus(HttpStatus.NOT_FOUND);
+                    return messageResponse;
+                });
     }
 
     @Override

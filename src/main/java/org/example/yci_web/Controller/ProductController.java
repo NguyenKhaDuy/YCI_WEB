@@ -72,6 +72,13 @@ public class ProductController {
         return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
     }
 
+    @DeleteMapping(value = "/api/admin/product/{idProduct}/image/{idImage}")
+    public ResponseEntity<Object> deleteProductImage(@PathVariable Long idProduct,
+                                                     @PathVariable Long idImage) {
+        MessageResponse messageResponse = productService.deleteProductImage(idProduct, idImage);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
+    }
+
     @PostMapping(value = "/api/admin/product/rental-price")
     public ResponseEntity<Object> addRentalPrice(@RequestBody RentalPriceProductRequest rentalPriceProductRequest) {
         MessageResponse messageResponse = productService.addRentalPriceProduct(rentalPriceProductRequest);

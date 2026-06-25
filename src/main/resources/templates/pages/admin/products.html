@@ -47,10 +47,13 @@
                     <span>Mô tả</span>
                     <textarea name="description" rows="4" required></textarea>
                 </label>
-                <label>
-                    <span>Hình ảnh</span>
-                    <input name="images" type="file" accept="image/*" multiple>
-                </label>
+                <div class="product-image-field">
+                    <label>
+                        <span>Hình ảnh</span>
+                        <input name="images" type="file" accept="image/*" multiple data-product-image-input>
+                    </label>
+                    <div class="product-image-preview" data-product-image-preview hidden></div>
+                </div>
                 <div class="button-row">
                     <button class="button primary" type="submit">Lưu thiết bị</button>
                     <button class="button ghost" type="button" data-reset-product-form>Làm mới</button>
