@@ -641,15 +641,20 @@ h3 {
 }
 
 .product-card-media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    padding: 10px;
+    object-fit: contain;
     transition: transform 0.24s ease;
 }
 
 .product-card-media.is-placeholder img {
+    position: static;
     width: min(46%, 130px);
     height: auto;
+    max-height: 46%;
     object-fit: contain;
     filter: drop-shadow(0 14px 24px rgba(233, 30, 131, 0.16));
 }
@@ -1046,7 +1051,8 @@ select:focus {
 .detail-media > img {
     width: 100%;
     aspect-ratio: 4 / 3;
-    object-fit: cover;
+    padding: 12px;
+    object-fit: contain;
     border-radius: var(--radius);
     background: #fff0f7;
 }
@@ -1076,7 +1082,9 @@ select:focus {
 .thumbnail-row img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    padding: 4px;
+    object-fit: contain;
+    background: #fff7fb;
 }
 
 .detail-panel {
@@ -1332,9 +1340,88 @@ select:focus {
 .booking-item img {
     width: 82px;
     aspect-ratio: 4 / 3;
-    object-fit: cover;
+    padding: 4px;
+    object-fit: contain;
     border-radius: var(--radius);
-    background: #dfe6e1;
+    background: #fff7fb;
+}
+
+.product-image-field {
+    display: grid;
+    gap: 12px;
+}
+
+.product-image-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 10px;
+}
+
+.product-image-preview[hidden] {
+    display: none;
+}
+
+.product-image-preview-item {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff7fb;
+}
+
+.product-image-preview-item.is-new {
+    border-color: rgba(233, 30, 131, 0.42);
+}
+
+.product-image-preview-item img {
+    width: 100%;
+    height: 100%;
+    padding: 6px;
+    object-fit: contain;
+}
+
+.image-preview-badge {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--teal-dark);
+    box-shadow: 0 4px 12px rgba(69, 22, 43, 0.12);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.image-preview-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(172, 27, 76, 0.22);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--danger);
+    box-shadow: 0 5px 14px rgba(69, 22, 43, 0.14);
+    cursor: pointer;
+}
+
+.image-preview-remove:hover {
+    border-color: var(--danger);
+    background: #fff0f4;
+}
+
+.image-preview-remove svg {
+    width: 17px;
+    height: 17px;
 }
 
 .booking-item-main {

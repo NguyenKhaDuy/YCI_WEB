@@ -395,13 +395,25 @@
     }
 
     function bootAdminProducts() {
-        const state = { products: [], categories: [], rentalTypes: [], search: "", category: "", status: "" };
+        const state = {
+            products: [],
+            categories: [],
+            rentalTypes: [],
+            search: "",
+            category: "",
+            status: "",
+            editingProduct: null,
+            selectedImages: [],
+            previewUrls: []
+        };
         const table = YCI.qs("[data-admin-products-table]");
         const productForm = YCI.qs("[data-admin-product-form]");
         const priceForm = YCI.qs("[data-admin-price-form]");
         const productSearch = YCI.qs("[data-admin-product-search]");
         const categoryFilter = YCI.qs("[data-admin-product-category-filter]");
         const statusFilter = YCI.qs("[data-admin-product-status-filter]");
+        const imageInput = YCI.qs("[data-product-image-input]");
+        const imagePreview = YCI.qs("[data-product-image-preview]");
 
         async function load() {
             const [products, categories, rentalTypes] = await Promise.all([
@@ -476,9 +488,72 @@
             YCI.iconRefresh();
         }
 
+        function releasePreviewUrls() {
+            state.previewUrls.forEach((url) => URL.revokeObjectURL(url));
+            state.previewUrls = [];
+        }
+
+        function syncImageInput() {
+            const transfer = new DataTransfer();
+            state.selectedImages.forEach((file) => transfer.items.add(file));
+            imageInput.files = transfer.files;
+        }
+
+        function renderImagePreview() {
+            releasePreviewUrls();
+            const existingImages = (state.editingProduct?.imageDTOS || []).map((image, index) => {
+                const raw = image.imageBase64 || "";
+                const url = image.idImage
+                    ? `/api/product/${state.editingProduct.idProduct}/image/${image.idImage}`
+                    : raw.startsWith("data:") ? raw : `data:image/jpeg;base64,${raw}`;
+                return { id: image.idImage, index, url };
+            });
+            const selectedImages = state.selectedImages.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                state.previewUrls.push(url);
+                return { file, index, url };
+            });
+
+            imagePreview.hidden = !existingImages.length && !selectedImages.length;
+            imagePreview.innerHTML = `
+                ${existingImages.map(({ id, index, url }) => `
+                    <figure class="product-image-preview-item">
+                        <img src="${url}" alt="Ảnh hiện có ${index + 1}">
+                        ${id ? `
+                            <button class="image-preview-remove" type="button"
+                                    data-delete-saved-image="${id}"
+                                    title="Xóa ảnh đã lưu"
+                                    aria-label="Xóa ảnh đã lưu ${index + 1}">
+                                <i data-lucide="x"></i>
+                            </button>
+                        ` : ""}
+                        <span class="image-preview-badge">Đã lưu</span>
+                    </figure>
+                `).join("")}
+                ${selectedImages.map(({ file, index, url }) => `
+                    <figure class="product-image-preview-item is-new">
+                        <img src="${url}" alt="${YCI.escapeHtml(file.name)}">
+                        <button class="image-preview-remove" type="button"
+                                data-remove-product-image="${index}"
+                                title="Loại ảnh ${YCI.escapeHtml(file.name)}"
+                                aria-label="Loại ảnh ${YCI.escapeHtml(file.name)}">
+                            <i data-lucide="x"></i>
+                        </button>
+                        <span class="image-preview-badge">Ảnh mới</span>
+                    </figure>
+                `).join("")}
+            `;
+            YCI.iconRefresh();
+        }
+
         function resetProductForm() {
             productForm.reset();
             productForm.elements.idProduct.value = "";
+            state.editingProduct = null;
+            state.selectedImages = [];
+            releasePreviewUrls();
+            imagePreview.innerHTML = "";
+            imagePreview.hidden = true;
         }
 
         table.addEventListener("click", async (event) => {
@@ -496,6 +571,11 @@
                 productForm.elements.idCategory.value = product.categoryId || "";
                 productForm.elements.depositPrice.value = product.depositPrice || 0;
                 productForm.elements.description.value = YCI.cleanText(product.description || "");
+                state.editingProduct = product;
+                state.selectedImages = [];
+                imageInput.value = "";
+                renderImagePreview();
+                productForm.scrollIntoView({ behavior: "smooth", block: "start" });
             }
             if (remove) {
                 try {
@@ -531,7 +611,7 @@
         productForm.addEventListener("submit", async (event) => {
             event.preventDefault();
             const id = productForm.elements.idProduct.value;
-            const images = Array.from(productForm.elements.images.files || []);
+            const images = state.selectedImages;
             if (!id && !images.length) {
                 YCI.toast("Cần chọn hình ảnh cho thiết bị mới.", "error");
                 return;
@@ -576,6 +656,45 @@
         });
 
         YCI.qs("[data-reset-product-form]")?.addEventListener("click", resetProductForm);
+        imageInput?.addEventListener("change", () => {
+            const knownFiles = new Set(state.selectedImages.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+            Array.from(imageInput.files || []).forEach((file) => {
+                const key = `${file.name}:${file.size}:${file.lastModified}`;
+                if (!knownFiles.has(key)) {
+                    state.selectedImages.push(file);
+                    knownFiles.add(key);
+                }
+            });
+            syncImageInput();
+            renderImagePreview();
+        });
+        imagePreview?.addEventListener("click", async (event) => {
+            const removeNew = event.target.closest("[data-remove-product-image]");
+            const removeSaved = event.target.closest("[data-delete-saved-image]");
+            if (removeNew) {
+                state.selectedImages.splice(Number(removeNew.dataset.removeProductImage), 1);
+                syncImageInput();
+                renderImagePreview();
+                return;
+            }
+            if (!removeSaved || !state.editingProduct) {
+                return;
+            }
+            removeSaved.disabled = true;
+            const productId = state.editingProduct.idProduct;
+            try {
+                await YCI.request(`/api/admin/product/${productId}/image/${removeSaved.dataset.deleteSavedImage}`, {
+                    method: "DELETE"
+                });
+                YCI.toast("Đã xóa hình ảnh.", "success");
+                await load();
+                state.editingProduct = state.products.find((product) => Number(product.idProduct) === Number(productId)) || null;
+                renderImagePreview();
+            } catch (error) {
+                removeSaved.disabled = false;
+                YCI.toast(error.message, "error");
+            }
+        });
         YCI.qs("[data-reset-price-form]")?.addEventListener("click", () => {
             priceForm.reset();
             YCI.qs("[data-price-submit]").textContent = "Thêm giá thuê";
